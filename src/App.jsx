@@ -744,6 +744,5 @@ setStep(5);
           <PrintBtns/>
         </div>
       </div>
-    </>
   );
 }
