@@ -38,9 +38,9 @@ async function callClaude(system, messages, maxTokens = 4000) {
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      // 1. Gemini 用のデータ形式に合わせる
-      model: "gemini-1.5-flash", 
+body: JSON.stringify({
+      // モデル名に models/ をつける
+      model: "models/gemini-1.5-flash", 
       max_tokens: maxTokens,
       system: system,
       messages: messages
