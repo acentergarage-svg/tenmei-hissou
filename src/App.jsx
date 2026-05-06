@@ -40,13 +40,14 @@ async function callClaude(system, messages, maxTokens = 4000) {
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+// 43行目以降をこのように書き換えてください[cite: 1]
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
       max_tokens: maxTokens,
-      system,
-      messages
+      system: system,
+      messages: messages
     }),
-  });
+  }); // ← 49行目：ここにある }); が非常に重要です！
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
   const data = await res.json();
   return data.content[0].text;
