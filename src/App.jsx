@@ -256,7 +256,6 @@ if(detailR){
   </div>`;
 }
 
-  }
   if(initR){
     pages+=`<div style="${ps.replace("page-break-after:always","page-break-after:auto")}">
       <div style="flex:1;display:flex;align-items:center;justify-content:center">
