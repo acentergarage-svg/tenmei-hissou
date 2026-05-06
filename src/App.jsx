@@ -683,67 +683,72 @@ setStep(5);
           )}
 
 {/* ─ STEP 5 ─ */}
-{step === 5 && (
-  <>
-    {!detailR && <div>読み込み中...</div>}
+{step === 5 && detailR && (
+  <div className="fade-in">
 
-    {detailR?.error && <div>{detailR.error}</div>}
-
-    {detailR && !detailR.error && (
-      <div className="fade-in">
-        <div style={{textAlign:"center",marginBottom:28}}>
-          <p style={{color:MUTED,fontSize:10,letterSpacing:"0.25em",marginBottom:8}}>詳細鑑定結果</p>
-          <h2 style={{fontSize:20,color:GOLDL,fontWeight:700}}>
-            {form.nameKanji}（{form.nameReading}）様
-          </h2>
-        </div>
-
-        {detailR?.categories?.map((cat, i) => {
-          const catInfo = CATS.find(x => x.label === cat.name);
-
-          return (
-            <RCard key={i} title={`${cat.name}　▷　${cat.sub}`} accent={catInfo?.color || GOLD}>
-              <RF label="鑑定" value={cat.reading}/>
-              <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:14}}>
-                <RF label="アドバイス" value={cat.advice}/>
-                <div>
-                  <RF label="重要な時期・タイミング" value={cat.timing}/>
-                  <RF label="ラッキーポイント" value={cat.lucky}/>
-                </div>
-              </div>
-            </RCard>
-          );
-        })}
-
-        {detailR.freeReading && (
-          <RCard title="✦ お悩みへの鑑定回答" accent="#E890A0">
-            <p style={{color:TEXT,fontSize:13,lineHeight:1.9}}>
-              {detailR.freeReading}
-            </p>
-          </RCard>
-        )}
-
-        <div style={{
-          background:`linear-gradient(135deg,${SURF2},${SURF})`,
-          border:`1px solid ${GOLD}`,
-          borderRadius:10,
-          padding:"28px 24px",
-          textAlign:"center",
-          marginBottom:28
-        }}>
-          <p style={{color:MUTED,fontSize:9,fontWeight:700,letterSpacing:"0.4em",marginBottom:6}}>
-            — 命 盤 の 余 韻 —
-          </p>
-          <div style={{width:40,height:1,background:GOLD,margin:"0 auto 18px"}}></div>
-          <p style={{color:TEXT,fontSize:14,lineHeight:2}}>
-            {detailR.final}
-          </p>
-        </div>
-
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
-          <PrintBtns/>
-        </div>
-      </div>
+    <div style={{textAlign:"center",marginBottom:28}}>
+      <p style={{color:MUTED,fontSize:10,letterSpacing:"0.25em",marginBottom:8}}>
+        詳細鑑定結果
+      </p>
+      <h2 style={{fontSize:20,color:GOLDL,fontWeight:700}}>
+        {form.nameKanji}（{form.nameReading}）様
+      </h2>
     </div>
-  );
+
+    {detailR.categories?.map((cat, i) => {
+      const catInfo = CATS.find(x => x.label === cat.name);
+
+      return (
+        <RCard
+          key={i}
+          title={`${cat.name}　▷　${cat.sub}`}
+          accent={catInfo?.color || GOLD}
+        >
+          <RF label="鑑定" value={cat.reading}/>
+          <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:14}}>
+            <RF label="アドバイス" value={cat.advice}/>
+            <div>
+              <RF label="重要な時期・タイミング" value={cat.timing}/>
+              <RF label="ラッキーポイント" value={cat.lucky}/>
+            </div>
+          </div>
+        </RCard>
+      );
+    })}
+
+    {detailR.freeReading && (
+      <RCard title="✦ お悩みへの鑑定回答" accent="#E890A0">
+        <p style={{color:TEXT,fontSize:13,lineHeight:1.9}}>
+          {detailR.freeReading}
+        </p>
+      </RCard>
+    )}
+
+    <div
+      style={{
+        background:`linear-gradient(135deg,${SURF2},${SURF})`,
+        border:`1px solid ${GOLD}`,
+        borderRadius:10,
+        padding:"28px 24px",
+        textAlign:"center",
+        marginBottom:28
+      }}
+    >
+      <p style={{color:MUTED,fontSize:9,fontWeight:700,letterSpacing:"0.4em",marginBottom:6}}>
+        — 命 盤 の 余 韻 —
+      </p>
+      <div style={{width:40,height:1,background:GOLD,margin:"0 auto 18px"}}></div>
+      <p style={{color:TEXT,fontSize:14,lineHeight:2}}>
+        {detailR.final}
+      </p>
+    </div>
+
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
+      <PrintBtns/>
+    </div>
+
+  </div>
+)}    </div>
+  </div>
+);
 }
