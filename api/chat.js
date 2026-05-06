@@ -1,12 +1,9 @@
 /**
  * api/chat.js
- * Vercel Serverless Function — Anthropic API プロキシ
- *
- * フロントエンドから /api/chat に POST することで
- * APIキーをクライアントに公開せずに Anthropic API を呼び出します。
- *
- * 環境変数 ANTHROPIC_API_KEY を Vercel ダッシュボードで設定してください。
+ * Vercel Serverless Function — Gemini API プロキシ
  */
+
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
   // CORS ヘッダー
@@ -24,44 +21,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  // Geminiのキーを取得 (VercelのSettingsで設定したもの)
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+  
   if (!apiKey) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY が設定されていません' });
+    return res.status(500).json({ error: 'GEMINI_API_KEY が設定されていません' });
   }
 
   try {
-    const body = req.body;
+    const { contents } = req.body;
 
-    // リクエストボディのサイズ制限チェック（画像込みのため大きめ）
-    const bodyStr = JSON.stringify(body);
-    if (bodyStr.length > 20 * 1024 * 1024) {
-      return res.status(413).json({ error: 'リクエストが大きすぎます' });
-    }
+    const genAI = new GoogleGenerativeAI(apiKey);
+    // モデルを指定 (最新の gemini-1.5-flash)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: bodyStr,
+    // Gemini API 呼び出し
+    const result = await model.generateContent({ contents });
+    const response = await result.response;
+    const text = response.text();
+
+    // フロントエンドが期待する形式に変換して返す
+    return res.status(200).json({ 
+      content: [{ text: text }] 
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json(data);
-    }
-
-    return res.status(200).json(data);
   } catch (error) {
-    console.error('API proxy error:', error);
+    console.error('Gemini API Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
 
-// Vercel にボディパーサーの設定を伝える
 export const config = {
   api: {
     bodyParser: {
