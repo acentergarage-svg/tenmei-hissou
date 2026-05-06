@@ -33,7 +33,7 @@ const CATS = [
 ];
 
 async function callClaude(system, messages, maxTokens = 4000) {
-  const endpoint = "/api/chat.js"; 
+const endpoint = "/api/chat";
 
 const res = await fetch(endpoint, {
     method: "POST",
