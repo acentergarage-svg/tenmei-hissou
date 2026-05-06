@@ -35,17 +35,15 @@ const CATS = [
 async function callClaude(system, messages, maxTokens = 4000) {
   const endpoint = "/api/chat.js"; 
 
-  const res = await fetch(endpoint, {
+const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-      model: "gemini-1.5-flash", // ここを models/ などに変えないこと[cite: 1]
-      max_tokens: maxTokens,
+    body: JSON.stringify({
+      // model: "..." ← この行を削除、またはコメントアウトしてください
       system: system,
       messages: messages
     }),
   });
-
   if (!res.ok) {
     const e = await res.json().catch(() => ({}));
     // 2. 新しい api/chat.js のエラー形式に合わせる
