@@ -35,7 +35,7 @@ const CATS = [
 async function callClaude(system, messages, maxTokens = 4000) {
   // 本番環境: /api/chat (Vercel プロキシ経由)
   // 開発環境: 同じ /api/chat (vite dev proxy 経由)
-  const endpoint = "/api/chat";
+const endpoint = "https://tenmei-hissou.vercel.app/api/chat";
 
   const res = await fetch(endpoint, {
     method: "POST",
