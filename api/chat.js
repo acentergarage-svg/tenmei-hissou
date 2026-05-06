@@ -1,8 +1,8 @@
 /**
  * api/chat.js
- * Gemini API プロキシ（モデル名指定修正版）
+ * Gemini API プロキシ（Direct Fetch 方式）
+ * ライブラリの 404 エラーを回避します。
  */
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -17,47 +17,52 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'APIキーが設定されていません' });
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // モデル名の指定から "gemini-1.5-flash" の前のパスを自動補完させるため、
-    // シンプルに名前だけに修正します。
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
     const incomingMessages = req.body.messages || [];
     
+    // Gemini 向けのデータ形式（contents）に変換
     const geminiContents = incomingMessages.map(msg => {
       const parts = Array.isArray(msg.content) ? msg.content : [{ text: msg.content }];
-      
       const formattedParts = parts.map(part => {
-        // 画像データがある場合（ソースデータの有無で判定）
         if (part.type === 'image' || (part.source && part.source.data)) {
           return {
-            inlineData: {
-              mimeType: part.source?.media_type || "image/png",
+            inline_data: {
+              mime_type: part.source?.media_type || "image/png",
               data: part.source?.data || part.data
             }
           };
         }
         return { text: part.text || part || "" };
       });
-
       return {
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: formattedParts
       };
     });
 
-    const result = await model.generateContent({ contents: geminiContents });
-    const response = await result.response;
-    const text = response.text();
+    // ライブラリを使わず直接 API を叩く (v1 安定版を指定)
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: geminiContents })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Gemini API Error');
+    }
+
+    // AI の返答テキストを取り出す
+    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "鑑定結果を取得できませんでした。";
 
     return res.status(200).json({ 
-      content: [{ type: 'text', text: text }] 
+      content: [{ type: 'text', text: aiText }] 
     });
 
   } catch (error) {
-    console.error('Gemini API Error details:', error);
-    // ログに出力された詳細をフロントにも返す
+    console.error('API Error:', error.message);
     return res.status(500).json({ error: error.message });
   }
 }
