@@ -1,6 +1,6 @@
 /**
  * api/chat.js
- * Gemini API プロキシ（完全パス指定版）
+ * Gemini 1.5 Flash 専用プロキシ（究極版）
  */
 
 export default async function handler(req, res) {
@@ -12,35 +12,42 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // 環境変数からキーを取得
   const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'APIキーが設定されていません' });
+  
+  if (!apiKey) {
+    return res.status(500).json({ error: 'APIキーが設定されていません' });
+  }
 
   try {
     const incomingMessages = req.body.messages || [];
     
+    // Gemini 1.5 Flash が要求する最も標準的なデータ形式に整理
     const geminiContents = incomingMessages.map(msg => {
-      const parts = Array.isArray(msg.content) ? msg.content : [{ text: msg.content }];
-      const formattedParts = parts.map(part => {
-        if (part.type === 'image' || (part.source && part.source.data)) {
-          return {
-            inline_data: {
-              mime_type: part.source?.media_type || "image/png",
-              data: part.source?.data || part.data
-            }
-          };
-        }
-        return { text: part.text || part || "" };
-      });
+      let parts = [];
+      if (Array.isArray(msg.content)) {
+        parts = msg.content.map(part => {
+          if (part.type === 'image' || part.source) {
+            return {
+              inline_data: {
+                mime_type: part.source?.media_type || "image/png",
+                data: part.source?.data || part.data
+              }
+            };
+          }
+          return { text: part.text || "" };
+        });
+      } else {
+        parts = [{ text: msg.content || "" }];
+      }
       return {
         role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: formattedParts
+        parts: parts
       };
     });
 
-    // 【ここを修正】モデル名を "models/gemini-1.5-flash" とフルパスで指定
-    // これにより v1 / v1beta 両方の不整合を回避します
-    const modelPath = "models/gemini-1.5-flash";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${apiKey}`;
+    // 通信先URL：gemini-1.5-flash を確実に指定
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -51,29 +58,21 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      // もし 1.5-flash がまだ使えない古いキーの場合のフォールバック
-      if (data.error?.status === "NOT_FOUND") {
-         const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-         const fallbackRes = await fetch(fallbackUrl, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ contents: geminiContents })
-         });
-         const fallbackData = await fallbackRes.json();
-         if (!fallbackRes.ok) throw new Error(fallbackData.error?.message || 'Gemini API Error');
-         return res.status(200).json({ content: [{ type: 'text', text: fallbackData.candidates?.[0]?.content?.parts?.[0]?.text }] });
-      }
-      throw new Error(data.error?.message || 'Gemini API Error');
+      // エラーの詳細をそのまま返す（デバッグ用）
+      return res.status(response.status).json({
+        error: data.error?.message || 'Gemini API Error',
+        details: data
+      });
     }
 
-    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "鑑定結果を取得できませんでした。";
+    // AIの回答を抽出
+    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "鑑定結果が得られませんでした。";
 
     return res.status(200).json({ 
       content: [{ type: 'text', text: aiText }] 
     });
 
   } catch (error) {
-    console.error('API Error:', error.message);
     return res.status(500).json({ error: error.message });
   }
 }
