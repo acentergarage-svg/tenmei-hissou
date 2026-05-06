@@ -1,7 +1,6 @@
 /**
  * api/chat.js
- * Gemini API プロキシ（Direct Fetch 方式）
- * ライブラリの 404 エラーを回避します。
+ * Gemini API プロキシ（v1beta 指定版）
  */
 
 export default async function handler(req, res) {
@@ -19,7 +18,6 @@ export default async function handler(req, res) {
   try {
     const incomingMessages = req.body.messages || [];
     
-    // Gemini 向けのデータ形式（contents）に変換
     const geminiContents = incomingMessages.map(msg => {
       const parts = Array.isArray(msg.content) ? msg.content : [{ text: msg.content }];
       const formattedParts = parts.map(part => {
@@ -39,8 +37,8 @@ export default async function handler(req, res) {
       };
     });
 
-    // ライブラリを使わず直接 API を叩く (v1 安定版を指定)
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 通信先を v1 から v1beta に変更
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -54,7 +52,6 @@ export default async function handler(req, res) {
       throw new Error(data.error?.message || 'Gemini API Error');
     }
 
-    // AI の返答テキストを取り出す
     const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "鑑定結果を取得できませんでした。";
 
     return res.status(200).json({ 
