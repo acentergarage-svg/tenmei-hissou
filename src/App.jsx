@@ -40,7 +40,7 @@ async function callClaude(system, messages, maxTokens = 4000) {
     headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
       // モデル名に models/ をつける
-      model: "models/gemini-1.5-flash", 
+      model: "models/gemini-1.5-flash-latest", 
       max_tokens: maxTokens,
       system: system,
       messages: messages
