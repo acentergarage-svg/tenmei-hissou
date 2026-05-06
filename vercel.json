@@ -7,16 +7,8 @@
 }
 ```[cite: 6]
 
-### なぜこれを変えるのか？
-*   **不要な指定を削除**: `buildCommand` や `outputDirectory` の記述を消すことで、Vercel が GitHub 上の `api` フォルダを自動で見つける邪魔を取り除きます[cite: 5, 6]。
-*   **ルートの優先順位**: `/api/` で始まるアクセスを確実に `api/chat.js` へ送る設定（rewrites）だけを残します[cite: 6]。
+### 修正のポイント
+*   8行目以降の「```[cite: 6]」や「### なぜこれを変えるのか？」といった **日本語の文章はすべて削除** してください[cite: 6]。
+*   1行目の `{` から 7行目の `}` までが残るようにします[cite: 6]。
 
----
-
-### 修正後の流れ
-
-1.  GitHub で `vercel.json` を上記の内容で **Commit changes**（保存）します。
-2.  Vercel 側で自動的にビルドが始まります。
-3.  ビルドが終わったら、**一度ブラウザのタブをすべて閉じ**、改めて `[https://tenmei-hissou.vercel.app](https://tenmei-hissou.vercel.app)` を開いて試してください。
-
-画像 `image_95caad.png` ですでに **Functions** に `/api/chat` が現れていたので、この `vercel.json` の簡略化が最後のピースになるはずです[cite: 5, 6]。応援しています！
+貼り付け直して **Commit changes** ボタンを押せば、今度こそ正しくデプロイが始まります！完了まであと少しです。
