@@ -404,16 +404,18 @@ ${catList}
 ${freeText || "（なし）"}
 `;
 
-    const raw = await callClaude(SYS_DETAIL, [{
-      role: "user",
-      content: [
-        { type: "text", text: userText }
-      ]
-    }]);
+const raw = await callClaude(SYS_DETAIL, [{
+  role: "user",
+  content: [
+    { type: "text", text: userText }
+  ]
+}]);
 
-    console.log("detail raw:", raw);
+console.log("detail raw:", raw);
 
 const parsed = parseJSON(raw);
+
+console.log("parsed:", parsed);
 
 if (!parsed) {
   console.error("JSON parse failed:", raw);
