@@ -33,14 +33,19 @@ const CATS = [
 ];
 
 async function callClaude(system, messages, maxTokens = 4000) {
-  // 本番環境: /api/chat (Vercel プロキシ経由)
-  // 開発環境: 同じ /api/chat (vite dev proxy 経由)
-const endpoint = "https://tenmei-hissou.vercel.app/api/chat.js";
+  
+  // 修正後：ドメインを消して、スラッシュから始める
+  const endpoint = "/api/chat.js"; 
 
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:maxTokens, system, messages }),
+    body: JSON.stringify({ 
+      model: "claude-sonnet-4-20250514", 
+      max_tokens: maxTokens, 
+      system, 
+      messages 
+    }),
   });
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
   const data = await res.json();
