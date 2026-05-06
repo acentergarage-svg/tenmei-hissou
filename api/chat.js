@@ -1,6 +1,6 @@
 /**
  * api/chat.js
- * Gemini API プロキシ（v1beta 指定版）
+ * Gemini API プロキシ（完全パス指定版）
  */
 
 export default async function handler(req, res) {
@@ -37,8 +37,10 @@ export default async function handler(req, res) {
       };
     });
 
-    // 通信先を v1 から v1beta に変更
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 【ここを修正】モデル名を "models/gemini-1.5-flash" とフルパスで指定
+    // これにより v1 / v1beta 両方の不整合を回避します
+    const modelPath = "models/gemini-1.5-flash";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -49,6 +51,18 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
+      // もし 1.5-flash がまだ使えない古いキーの場合のフォールバック
+      if (data.error?.status === "NOT_FOUND") {
+         const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+         const fallbackRes = await fetch(fallbackUrl, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ contents: geminiContents })
+         });
+         const fallbackData = await fallbackRes.json();
+         if (!fallbackRes.ok) throw new Error(fallbackData.error?.message || 'Gemini API Error');
+         return res.status(200).json({ content: [{ type: 'text', text: fallbackData.candidates?.[0]?.content?.parts?.[0]?.text }] });
+      }
       throw new Error(data.error?.message || 'Gemini API Error');
     }
 
