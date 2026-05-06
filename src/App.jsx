@@ -395,7 +395,7 @@ ${form.gender || "性別未記入"}
 鑑定日：${dateStr}
 
 【初回鑑定】
-${initR}
+${typeof initR === "string" ? initR : JSON.stringify(initR)}
 
 【詳細鑑定ご希望項目】
 ${catList}
@@ -404,27 +404,36 @@ ${catList}
 ${freeText || "（なし）"}
 `;
 
-const raw = await callClaude(SYS_DETAIL, [{
-  role: "user",
-  content: [
-    { type: "text", text: userText }
-  ]
-}]);
+    const raw = await callClaude(SYS_DETAIL, [{
+      role: "user",
+      content: [
+        { type: "text", text: userText }
+      ]
+    }]);
 
-console.log("detail raw:", raw);
+    console.log("detail raw:", raw);
 
-const parsed = parseJSON(raw);
+    // 🔴 JSONパース
+    let parsed = null;
+    try {
+      parsed = JSON.parse(
+        raw.replace(/```json/g, "").replace(/```/g, "").trim()
+      );
+    } catch (e) {
+      console.warn("JSON失敗 → テキストとして扱う");
+    }
 
-console.log("parsed:", parsed);
+    // 🔴 フォールバック（ここが本質）
+    if (!parsed) {
+      parsed = {
+        categories: [],
+        freeReading: "",
+        final: raw
+      };
+    }
 
-if (!parsed) {
-  console.error("JSON parse failed:", raw);
-  setErr("詳細鑑定の取得に失敗しました");
-  return;
-}
-
-setDetailR(parsed);
-setStep(5);
+    setDetailR(parsed);
+    setStep(5);
 
   } catch (e) {
     setErr(e.message);
