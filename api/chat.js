@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       model: "gemini-2.5-flash-lite"
     });
 
-    const { messages } = req.body;
+    const { messages = [] } = req.body;
 
     const prompt = messages
       .map(m =>
@@ -29,8 +29,8 @@ export default async function handler(req, res) {
       )
       .join("\n");
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const result = await retryGenerate(model, prompt);
+    const response = result.response;
 
     return res.status(200).json({
       content: [{ type: "text", text: response.text() }]
@@ -39,5 +39,16 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: error.message });
+  }
+}
+
+async function retryGenerate(model, prompt, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await model.generateContent(prompt);
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, 1000));
+    }
   }
 }
