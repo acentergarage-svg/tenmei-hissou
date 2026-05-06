@@ -311,17 +311,21 @@ export default function TenmeiHissouApp(){
       const yi=yokoRef.current.toDataURL("image/png");
       setTateUrl(ti);setYokoUrl(yi);
       const infoText=`【鑑定対象者】\n名前（漢字）：${form.nameKanji}\n名前（読み）：${form.nameReading||"未記入"}\n生年月日：${form.year}年${form.month}月${form.day}日${form.hour?`（${form.hour}時台生まれ）`:""}\n出生地：${form.birthplace||"不明"}\n性別：${form.gender||"未記入"}\n鑑定日：${dateStr}（時期・タイミングの起点として使用してください）\n\n以下の画像は手書き文字です。天命筆相の手法で分析してください。`;
-      const raw=await callClaude(SYS_INIT,[{role:"user",content:[
-        {type:"text",text:infoText},
-        {type:"text",text:"【縦書き手書き文字】"},
-        {type:"image",source:{type:"base64",media_type:"image/png",data:ti.split(",")[1]}},
-        {type:"text",text:"【横書き手書き文字】"},
-        {type:"image",source:{type:"base64",media_type:"image/png",data:yi.split(",")[1]}},
-        {type:"text",text:"上記をもとに鑑定書を作成してください。"},
-      ]}]);
-      const parsed=parseJSON(raw);
-      if(!parsed)throw new Error("鑑定結果の解析に失敗しました。もう一度お試しください。");
-      setInitR(parsed);setStep(3);
+
+const raw = await callClaude(SYS_INIT, [{
+  role: "user",
+  content: [
+    { type: "text", text: infoText },
+    { type: "text", text: "【縦書き手書き文字】" },
+    { type: "image", source: { type: "base64", media_type: "image/png", data: ti.split(",")[1] } },
+    { type: "text", text: "【横書き手書き文字】" },
+    { type: "image", source: { type: "base64", media_type: "image/png", data: yi.split(",")[1] } },
+    { type: "text", text: "上記をもとに鑑定書を作成してください。" },
+  ]
+}]);
+
+setInitR(raw);
+setStep(3);
     }catch(e){setErr(e.message);}finally{setLoading(false);}
   };
 
