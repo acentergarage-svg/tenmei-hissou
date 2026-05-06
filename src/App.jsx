@@ -39,7 +39,6 @@ const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      // model: "..." ← この行を削除、またはコメントアウトしてください
       system: system,
       messages: messages
     }),
