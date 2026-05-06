@@ -10,16 +10,16 @@ export default async function handler(req, res) {
 
   try {
     const { messages } = req.body;
+
     const contents = messages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
-   parts: [{
-  text: typeof msg.content === "string"
-    ? msg.content
-    : msg.content.map(c => c.text).join("\n")
-}]
+      parts: [{
+        text: typeof msg.content === "string"
+          ? msg.content
+          : msg.content.map(c => c.text).join("\n")
+      }]
     }));
 
-    // 正式なエンドポイントURL
     const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiUrl, {
@@ -32,7 +32,11 @@ export default async function handler(req, res) {
     if (!response.ok) throw new Error(data.error?.message || 'API通信エラー');
 
     const aiText = data.candidates[0].content.parts[0].text;
-    return res.status(200).json({ content: [{ type: 'text', text: aiText }] });
+
+    return res.status(200).json({
+      content: [{ type: 'text', text: aiText }]
+    });
+
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
