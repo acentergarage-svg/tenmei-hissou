@@ -236,15 +236,19 @@ function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
       </div>
       ${ft(2)}</div>`;
   }
-  if(detailR){
-    const rows=(detailR.categories||[]).map((c,i,a)=>`
-      <div style="margin-bottom:18px;padding-bottom:16px;border-bottom:${i<a.length-1?".5px solid #E0D8C0":"none"}">
-        <h3 style="font-size:13px;color:#7A5010;margin:0 0 8px;font-weight:700">${c.name}　▷　${c.sub}</h3>
-        ${pf("鑑定",c.reading)}<div style="display:flex;gap:16px"><div style="flex:2">${pf("アドバイス",c.advice)}</div><div style="flex:1">${pf("重要な時期",c.timing)}</div><div style="flex:1">${pf("ラッキーポイント",c.lucky)}</div></div>
-      </div>`).join("");
-    pages+=`<div style="${ps}">
-      <h2 style="font-size:18px;color:#1A1030;text-align:center;border-bottom:1px solid #C9A84C;padding-bottom:12px;margin-bottom:20px;font-weight:700">詳細鑑定</h2>
-      ${rows}
+if(detailR){
+  pages+=`<div style="${ps}">
+    <h2 style="font-size:18px;color:#1A1030;text-align:center;border-bottom:1px solid #C9A84C;padding-bottom:12px;margin-bottom:20px;font-weight:700">
+      詳細鑑定
+    </h2>
+
+    <div style="font-size:13px;line-height:2;color:#1A1030;white-space:pre-wrap;">
+      ${detailR}
+    </div>
+
+    ${ft(3)}
+  </div>`;
+}
       ${detailR.freeReading?`<div style="margin-top:16px;padding:14px;background:#F8F4EC;border-radius:6px">${pf("お悩みへの鑑定回答",detailR.freeReading)}</div>`:""}
       ${ft(3)}</div>`;
   }
