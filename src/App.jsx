@@ -340,6 +340,8 @@ const doInit = async () => {
       ]
     }]);
 
+    console.log("init raw:", raw);
+
     setInitR(raw);
     setStep(3);
 
@@ -384,9 +386,14 @@ ${catList}
 ${freeText || "（なし）"}
 `;
 
-    const raw = await callClaude(SYS_DETAIL, [
-      { role: "user", content: userText }
-    ]);
+    const raw = await callClaude(SYS_DETAIL, [{
+      role: "user",
+      content: [
+        { type: "text", text: userText }
+      ]
+    }]);
+
+    console.log("detail raw:", raw);
 
     setDetailR(raw);
     setStep(5);
