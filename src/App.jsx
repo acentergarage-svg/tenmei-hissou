@@ -302,47 +302,101 @@ export default function TenmeiHissouApp(){
     setInitR(null);setDetailR(null);setSelCats([]);setFreeText("");setErr("");setTateUrl("");setYokoUrl("");setWriteStep(1);
   };
 
-  const doInit=async()=>{
-    if(!form.nameKanji||!form.year||!form.month||!form.day){setErr("お名前（漢字）と生年月日は必須項目です");return;}
-    setErr("");setLoading(true);setLoadMsg("鑑定中");
-    try{
-      const ti=tateRef.current.toDataURL("image/png");
-      const yi=yokoRef.current.toDataURL("image/png");
-      setTateUrl(ti);setYokoUrl(yi);
-      const infoText=`【鑑定対象者】\n名前（漢字）：${form.nameKanji}\n名前（読み）：${form.nameReading||"未記入"}\n生年月日：${form.year}年${form.month}月${form.day}日${form.hour?`（${form.hour}時台生まれ）`:""}\n出生地：${form.birthplace||"不明"}\n性別：${form.gender||"未記入"}\n鑑定日：${dateStr}（時期・タイミングの起点として使用してください）\n\n以下の画像は手書き文字です。天命筆相の手法で分析してください。`;
+const doInit = async () => {
+  if (!form.nameKanji || !form.year || !form.month || !form.day) {
+    setErr("お名前（漢字）と生年月日は必須項目です");
+    return;
+  }
 
-const raw = await callClaude(SYS_INIT, [{
-  role: "user",
-  content: [
-    { type: "text", text: infoText },
-    { type: "text", text: "【縦書き手書き文字】" },
-    { type: "image", source: { type: "base64", media_type: "image/png", data: ti.split(",")[1] } },
-    { type: "text", text: "【横書き手書き文字】" },
-    { type: "image", source: { type: "base64", media_type: "image/png", data: yi.split(",")[1] } },
-    { type: "text", text: "上記をもとに鑑定書を作成してください。" },
-  ]
-}]);
+  setErr("");
+  setLoading(true);
+  setLoadMsg("鑑定中");
 
-setInitR(raw);
-setStep(3);
-    }catch(e){setErr(e.message);}finally{setLoading(false);}
-  };
+  try {
+    const ti = tateRef.current.toDataURL("image/png");
+    const yi = yokoRef.current.toDataURL("image/png");
 
-  const doDetail=async()=>{
-    if(selCats.length===0){setErr("鑑定を希望する項目を最低1つ選択してください");return;}
-    setErr("");setLoading(true);setLoadMsg("鑑定中");
-    try{
-      const catList=selCats.map(s=>{const cat=CATS.find(c=>c.id===s.catId);return`・${cat.label} ＞ ${cat.subs[s.subIdx]}`;}).join("\n");
-      const userText=`【鑑定対象者】${form.nameKanji}（${form.nameReading}）、${form.year}年${form.month}月${form.day}日生、${form.gender||"性別未記入"}\n鑑定日：${dateStr}（時期・タイミングの起点として使用してください）\n\n【初回鑑定の要点】\n四柱推命：${initR?.shichusuimei?.seikaku}\n現在の運気：${initR?.shichusuimei?.genki}\n姓名判断：${initR?.seimeiHandan?.unmei}\n天命筆相（心理）：${initR?.tenmeiHissou?.shinri}\n総合メッセージ：${initR?.overall}\n\n【詳細鑑定ご希望項目】\n${catList}\n\n【お悩み・自由記入】\n${freeText||"（なし）"}`;
-      const raw=await callClaude(SYS_DETAIL,[{role:"user",content:userText}]);
-const raw = await callClaude(...);
+    setTateUrl(ti);
+    setYokoUrl(yi);
 
-setInitR(raw);
-setStep(3);
-      setDetailR(parsed);setStep(5);
-    }catch(e){setErr(e.message);}finally{setLoading(false);}
-  };
+    const infoText = `【鑑定対象者】
+名前（漢字）：${form.nameKanji}
+名前（読み）：${form.nameReading || "未記入"}
+生年月日：${form.year}年${form.month}月${form.day}日
+性別：${form.gender || "未記入"}
+鑑定日：${dateStr}
 
+以下の画像は手書き文字です。天命筆相として分析してください。`;
+
+    const raw = await callClaude(SYS_INIT, [{
+      role: "user",
+      content: [
+        { type: "text", text: infoText },
+        { type: "text", text: "【縦書き手書き文字】" },
+        { type: "image", source: { type: "base64", media_type: "image/png", data: ti.split(",")[1] } },
+        { type: "text", text: "【横書き手書き文字】" },
+        { type: "image", source: { type: "base64", media_type: "image/png", data: yi.split(",")[1] } },
+        { type: "text", text: "上記をもとに鑑定書を作成してください。" }
+      ]
+    }]);
+
+    setInitR(raw);
+    setStep(3);
+
+  } catch (e) {
+    setErr(e.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const doDetail = async () => {
+  if (selCats.length === 0) {
+    setErr("鑑定を希望する項目を最低1つ選択してください");
+    return;
+  }
+
+  setErr("");
+  setLoading(true);
+  setLoadMsg("鑑定中");
+
+  try {
+    const catList = selCats
+      .map(s => {
+        const cat = CATS.find(c => c.id === s.catId);
+        return `・${cat.label} ＞ ${cat.subs[s.subIdx]}`;
+      })
+      .join("\n");
+
+    const userText = `【鑑定対象者】
+${form.nameKanji}（${form.nameReading}）
+${form.year}年${form.month}月${form.day}日生
+${form.gender || "性別未記入"}
+鑑定日：${dateStr}
+
+【初回鑑定】
+${initR}
+
+【詳細鑑定ご希望項目】
+${catList}
+
+【お悩み・自由記入】
+${freeText || "（なし）"}
+`;
+
+    const raw = await callClaude(SYS_DETAIL, [
+      { role: "user", content: userText }
+    ]);
+
+    setDetailR(raw);
+    setStep(5);
+
+  } catch (e) {
+    setErr(e.message);
+  } finally {
+    setLoading(false);
+  }
+};
   const toggleCat=(catId,subIdx)=>{
     setSelCats(prev=>{
       const idx=prev.findIndex(s=>s.catId===catId&&s.subIdx===subIdx);
