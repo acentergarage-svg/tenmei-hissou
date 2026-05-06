@@ -255,8 +255,7 @@ if(detailR){
     ${ft(3)}
   </div>`;
 }
-      ${detailR.freeReading?`<div style="margin-top:16px;padding:14px;background:#F8F4EC;border-radius:6px">${pf("お悩みへの鑑定回答",detailR.freeReading)}</div>`:""}
-      ${ft(3)}</div>`;
+
   }
   if(initR){
     pages+=`<div style="${ps.replace("page-break-after:always","page-break-after:auto")}">
