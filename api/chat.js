@@ -12,7 +12,11 @@ export default async function handler(req, res) {
     const { messages } = req.body;
     const contents = messages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }]
+   parts: [{
+  text: typeof msg.content === "string"
+    ? msg.content
+    : msg.content.map(c => c.text).join("\n")
+}]
     }));
 
     // 正式なエンドポイントURL
