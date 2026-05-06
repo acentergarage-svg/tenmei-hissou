@@ -217,11 +217,10 @@ function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
           <p style="font-size:11px;color:#666;margin:0">${form.year}年${form.month}月${form.day}日生　${form.gender}　｜　鑑定日：${dateStr}</p>
         </div>
       </div>
-      <h2 style="${h2s};margin-top:0">四柱推命による鑑定</h2>
-      ${pf("基本命式",initR.shichusuimei?.kihon)}${pf("性格・気質",initR.shichusuimei?.seikaku)}${pf("現在の運気の流れ",initR.shichusuimei?.genki)}
-      <div style="display:flex;gap:20px"><div style="flex:1">${pf("強み・才能",initR.shichusuimei?.toku)}</div><div style="flex:1">${pf("課題・注意点",initR.shichusuimei?.kadai)}</div></div>
-      <h2 style="${h2s};margin-top:20px">姓名判断による鑑定</h2>
-      ${pf("名前の意味と運命",initR.seimeiHandan?.meimei)}${pf("各格の解説（天格・地格・人格・外格・総格）",initR.seimeiHandan?.kaku)}${pf("人生の方向性",initR.seimeiHandan?.unmei)}
+<h2 style="${h2s};margin-top:0">鑑定結果</h2>
+<div style="font-size:12px; line-height:1.9; white-space:pre-wrap; color:#1A1030;">
+  ${initR || ""}
+</div>
       ${ft(1)}</div>`;
 
     pages+=`<div style="${ps}">
@@ -336,8 +335,10 @@ setStep(3);
       const catList=selCats.map(s=>{const cat=CATS.find(c=>c.id===s.catId);return`・${cat.label} ＞ ${cat.subs[s.subIdx]}`;}).join("\n");
       const userText=`【鑑定対象者】${form.nameKanji}（${form.nameReading}）、${form.year}年${form.month}月${form.day}日生、${form.gender||"性別未記入"}\n鑑定日：${dateStr}（時期・タイミングの起点として使用してください）\n\n【初回鑑定の要点】\n四柱推命：${initR?.shichusuimei?.seikaku}\n現在の運気：${initR?.shichusuimei?.genki}\n姓名判断：${initR?.seimeiHandan?.unmei}\n天命筆相（心理）：${initR?.tenmeiHissou?.shinri}\n総合メッセージ：${initR?.overall}\n\n【詳細鑑定ご希望項目】\n${catList}\n\n【お悩み・自由記入】\n${freeText||"（なし）"}`;
       const raw=await callClaude(SYS_DETAIL,[{role:"user",content:userText}]);
-      const parsed=parseJSON(raw);
-      if(!parsed)throw new Error("詳細鑑定の解析に失敗しました。もう一度お試しください。");
+const raw = await callClaude(...);
+
+setInitR(raw);
+setStep(3);
       setDetailR(parsed);setStep(5);
     }catch(e){setErr(e.message);}finally{setLoading(false);}
   };
@@ -532,27 +533,11 @@ setStep(3);
                 <h2 style={{fontSize:20,color:GOLDL,fontWeight:700}}>{form.nameKanji}（{form.nameReading}）様</h2>
                 <p style={{color:MUTED2,fontSize:12,marginTop:6}}>{form.year}年{form.month}月{form.day}日生　{form.gender}</p>
               </div>
-              <RCard title="✦ 四柱推命による鑑定" accent={GOLD}>
-                <RF label="基本命式" value={initR.shichusuimei?.kihon}/>
-                <RF label="性格・気質" value={initR.shichusuimei?.seikaku}/>
-                <RF label="現在の運気の流れ" value={initR.shichusuimei?.genki}/>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-                  <RF label="強み・才能" value={initR.shichusuimei?.toku}/>
-                  <RF label="課題・注意点" value={initR.shichusuimei?.kadai}/>
-                </div>
-              </RCard>
-              <RCard title="◈ 姓名判断による鑑定" accent="#F0C040">
-                <RF label="名前の意味と運命" value={initR.seimeiHandan?.meimei}/>
-                <RF label="各格の解説（天格・地格・人格・外格・総格）" value={initR.seimeiHandan?.kaku}/>
-                <RF label="人生の方向性" value={initR.seimeiHandan?.unmei}/>
-              </RCard>
-              <RCard title="◇ 天命筆相による鑑定" accent="#B090FF">
-                <RF label="筆跡全体の印象" value={initR.tenmeiHissou?.zentai}/>
-                <RF label="縦書きから読む特徴と心理" value={initR.tenmeiHissou?.tategaki}/>
-                <RF label="横書きから読む特徴と心理" value={initR.tenmeiHissou?.yokogaki}/>
-                <RF label="現在の心理状態・内面の動き" value={initR.tenmeiHissou?.shinri}/>
-                <RF label="潜在的才能・隠れた本質" value={initR.tenmeiHissou?.sensei}/>
-              </RCard>
+<RCard title="✦ 鑑定結果" accent={GOLD}>
+  <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.9 }}>
+    {initR}
+  </div>
+</RCard>
               <div style={{background:`linear-gradient(135deg,${SURF2},${SURF})`,border:`1px solid ${GOLD}`,borderRadius:10,padding:"24px",textAlign:"center",marginBottom:24}}>
                 <p style={{color:GOLD,fontSize:10,fontWeight:700,letterSpacing:"0.2em",marginBottom:14}}>三法統合 ─ 総合メッセージ</p>
                 <p style={{color:TEXT,fontSize:14,lineHeight:2}}>{initR.overall}</p>
