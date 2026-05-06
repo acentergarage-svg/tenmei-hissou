@@ -58,9 +58,19 @@ body: JSON.stringify({
 }
 
 function parseJSON(text) {
+  if (!text) return null;
+
   try {
-    return JSON.parse(text.replace(/^```json\s*/m,"").replace(/^```\s*/m,"").replace(/```\s*$/m,"").trim());
-  } catch { return null; }
+    const cleaned = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(cleaned);
+  } catch (e) {
+    console.error("Parse Error:", e, text);
+    return null;
+  }
 }
 
 const SYS_INIT = `あなたは鑑定士「輪夢（りんむー）」です。四柱推命・姓名判断・天命筆相（独自の筆跡鑑定手法）を組み合わせた総合鑑定を行います。
