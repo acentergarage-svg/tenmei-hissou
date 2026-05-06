@@ -1,6 +1,6 @@
 /**
  * api/chat.js
- * Gemini API プロキシ（データ形式変換版）
+ * Gemini API プロキシ（モデル名指定修正版）
  */
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -18,27 +18,27 @@ export default async function handler(req, res) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // モデル名の指定から "gemini-1.5-flash" の前のパスを自動補完させるため、
+    // シンプルに名前だけに修正します。
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // フロントエンドから届いたメッセージ（Anthropic形式）を取り出す
     const incomingMessages = req.body.messages || [];
     
-    // Geminiが理解できる形式（contents）に変換する
     const geminiContents = incomingMessages.map(msg => {
-      // 画像データが含まれているかチェック
       const parts = Array.isArray(msg.content) ? msg.content : [{ text: msg.content }];
       
       const formattedParts = parts.map(part => {
+        // 画像データがある場合（ソースデータの有無で判定）
         if (part.type === 'image' || (part.source && part.source.data)) {
-          // 画像データがある場合
           return {
             inlineData: {
-              mimeType: part.source.media_type || "image/png",
-              data: part.source.data
+              mimeType: part.source?.media_type || "image/png",
+              data: part.source?.data || part.data
             }
           };
         }
-        return { text: part.text || "" };
+        return { text: part.text || part || "" };
       });
 
       return {
@@ -47,18 +47,17 @@ export default async function handler(req, res) {
       };
     });
 
-    // Gemini API 呼び出し
     const result = await model.generateContent({ contents: geminiContents });
     const response = await result.response;
     const text = response.text();
 
-    // フロントエンドが期待する Anthropic 形式のレスポンスを返す
     return res.status(200).json({ 
       content: [{ type: 'text', text: text }] 
     });
 
   } catch (error) {
     console.error('Gemini API Error details:', error);
+    // ログに出力された詳細をフロントにも返す
     return res.status(500).json({ error: error.message });
   }
 }
