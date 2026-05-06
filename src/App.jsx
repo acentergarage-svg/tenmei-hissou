@@ -40,11 +40,11 @@ async function callClaude(system, messages, maxTokens = 4000) {
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ 
-      model: "claude-sonnet-4-20250514", 
-      max_tokens: maxTokens, 
-      system, 
-      messages 
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: maxTokens,
+      system,
+      messages
     }),
   });
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
