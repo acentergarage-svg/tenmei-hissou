@@ -211,102 +211,321 @@ function Toast({msg,onClose}){
 
 /* ── Print HTML builder ── */
 function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
-  const total=initR?(detailR?4:3):1;
-  const ps=["width:210mm","min-height:297mm","padding:18mm 16mm","background:white","color:#1A1030","page-break-after:always","box-sizing:border-box","display:flex","flex-direction:column","font-family:'Noto Serif JP',serif"].join(";");
-  const h2s="font-size:14px;color:#7A5010;border-left:3px solid #C9A84C;padding-left:10px;margin-bottom:14px;font-weight:700";
-  const pf=(l,v)=>!v?"":`<div style="margin-bottom:11px"><p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#7A5010;letter-spacing:.1em">${l}</p><p style="margin:0;font-size:12px;line-height:1.9;color:#1A1030">${v}</p></div>`;
-  const ft=(n)=>`<div style="margin-top:auto;padding-top:16px;border-top:.5px solid #E8E0D0;text-align:right;font-size:10px;color:#aaa">${n} / ${total}　天命筆相鑑定書</div>`;
-  let pages="";
-  if(initR){
-    pages+=`<div style="${ps}">
-      <div style="text-align:center;border-bottom:2px solid #C9A84C;padding-bottom:18px;margin-bottom:24px">
-        <p style="font-size:10px;color:#888;letter-spacing:.2em;margin:0 0 6px">鑑定士：輪夢（りんむー）</p>
-        <h1 style="font-size:24px;color:#1A1030;font-weight:700;letter-spacing:.12em;margin:0 0 10px">天命筆相　総合鑑定書</h1>
-        <div style="display:inline-block;background:#F8F4EC;border:1px solid #C9A84C;border-radius:6px;padding:12px 36px">
-          <p style="font-size:18px;font-weight:700;margin:0 0 4px">${form.nameKanji}（${form.nameReading}）様</p>
-          <p style="font-size:11px;color:#666;margin:0">${form.year}年${form.month}月${form.day}日生　${form.gender}　｜　鑑定日：${dateStr}</p>
-        </div>
-      </div>
-<h2 style="${h2s};margin-top:0">鑑定結果</h2>
-<div style="font-size:12px; line-height:1.9; white-space:pre-wrap; color:#1A1030;">
-  ${initR || ""}
-</div>
-      ${ft(1)}</div>`;
 
-    pages+=`<div style="${ps}">
-      <h2 style="font-size:18px;color:#1A1030;text-align:center;border-bottom:1px solid #C9A84C;padding-bottom:12px;margin-bottom:20px;font-weight:700">天命筆相による鑑定</h2>
-      <div style="display:flex;gap:20px;margin-bottom:20px">
-        <div style="flex:1;text-align:center"><p style="font-size:11px;color:#7A5010;font-weight:700;margin:0 0 6px">縦書き手書き文字</p>${tateUrl?`<img src="${tateUrl}" alt="縦書き" style="max-width:100%;max-height:155px;border:1px solid #E0D8C0;border-radius:4px">`:""}</div>
-        <div style="flex:1;text-align:center"><p style="font-size:11px;color:#7A5010;font-weight:700;margin:0 0 6px">横書き手書き文字</p>${yokoUrl?`<img src="${yokoUrl}" alt="横書き" style="max-width:100%;max-height:155px;border:1px solid #E0D8C0;border-radius:4px">`:""}</div>
-      </div>
-      ${pf("筆跡全体の印象",initR.tenmeiHissou?.zentai)}${pf("縦書きから読む特徴と心理",initR.tenmeiHissou?.tategaki)}${pf("横書きから読む特徴と心理",initR.tenmeiHissou?.yokogaki)}${pf("現在の心理状態・内面の動き",initR.tenmeiHissou?.shinri)}${pf("潜在的才能・隠れた本質",initR.tenmeiHissou?.sensei)}
-      <div style="background:#F8F4EC;border:1px solid #C9A84C;border-radius:8px;padding:20px;margin-top:14px;text-align:center">
-        <p style="font-size:10px;color:#7A5010;font-weight:700;letter-spacing:.15em;margin:0 0 12px">三法統合 ─ 総合メッセージ</p>
-        <p style="font-size:13px;line-height:2;color:#1A1030;margin:0">${initR}</p>
-      </div>
-      ${ft(2)}</div>`;
-  }
-if(detailR){
-  pages+=`<div style="${ps}">
-    <h2 style="font-size:18px;color:#1A1030;text-align:center;border-bottom:1px solid #C9A84C;padding-bottom:12px;margin-bottom:20px;font-weight:700">
-      詳細鑑定
-    </h2>
+  const page = (content, num, total) => `
+  <div style="
+    width:210mm;
+    min-height:297mm;
+    padding:20mm 18mm;
+    background:#fff;
+    color:#1A1030;
+    font-family:'Noto Serif JP',serif;
+    box-sizing:border-box;
+    page-break-after:always;
+    display:flex;
+    flex-direction:column;
+  ">
+    ${content}
 
-<div style="font-size:13px;line-height:2.2;color:#1A1030;white-space:pre-wrap;letter-spacing:0.03em;">
-${detailR?.categories?.map(c => `
-  <div style="margin-bottom:18px;">
-    <div style="font-weight:700;color:#7A5010;margin-bottom:6px;">
-      ${c.name} ＞ ${c.sub}
+    <div style="
+      margin-top:auto;
+      padding-top:14px;
+      border-top:1px solid #ddd;
+      text-align:right;
+      font-size:10px;
+      color:#888;
+    ">
+      ${num} / ${total}　天命筆相鑑定書
     </div>
-    <div style="margin-bottom:6px;">${c.reading}</div>
-    <div style="font-size:11px;color:#555;">${c.advice}</div>
-    <div style="font-size:10px;color:#888;">${c.timing}</div>
-    <div style="font-size:10px;color:#888;">${c.lucky}</div>
   </div>
-`).join("")}    </div>
+  `;
 
-    ${detailR?.freeReading ? `
-      <div style="margin-top:16px;padding:14px;background:#F8F4EC;border-radius:6px">
-        ${pf("お悩みへの鑑定回答", detailR.freeReading)}
+  const section = (title, body) => `
+    <div style="margin-bottom:24px;">
+      <h2 style="
+        font-size:18px;
+        color:#7A5010;
+        border-left:4px solid #C9A84C;
+        padding-left:10px;
+        margin-bottom:12px;
+      ">
+        ${title}
+      </h2>
+
+      <div style="
+        font-size:13px;
+        line-height:2.1;
+        white-space:pre-wrap;
+      ">
+        ${body || ""}
       </div>
-    ` : ""}
+    </div>
+  `;
 
-    ${ft(3)}
-  </div>`;
-}
+  let pages = [];
 
-  if(initR){
-    pages+=`<div style="${ps.replace("page-break-after:always","page-break-after:auto")}">
-      <div style="flex:1;display:flex;align-items:center;justify-content:center">
-        <div style="background:#F8F4EC;border:2px solid #C9A84C;border-radius:12px;padding:36px 48px;max-width:460px;text-align:center">
-          <p style="font-size:10px;color:#7A5010;font-weight:700;letter-spacing:.25em;margin:0 0 8px">— 命 盤 の 余 韻 —</p>
-          <div style="width:40px;height:1px;background:#C9A84C;margin:0 auto 20px"></div>
-          <p style="font-size:13px;line-height:2.1;color:#1A1030;margin:0 0 20px">${detailR?.final||initR?.overall}</p>
+  /* ===== 1ページ目 ===== */
+
+  pages.push(page(`
+    <div style="text-align:center;margin-bottom:28px;">
+      <p style="font-size:11px;color:#888;margin-bottom:8px;">
+        鑑定士：輪夢（りんむー）
+      </p>
+
+      <h1 style="
+        font-size:28px;
+        color:#1A1030;
+        margin-bottom:14px;
+        letter-spacing:0.08em;
+      ">
+        天命筆相 総合鑑定書
+      </h1>
+
+      <div style="
+        display:inline-block;
+        border:1px solid #C9A84C;
+        background:#F8F4EC;
+        padding:14px 36px;
+        border-radius:8px;
+      ">
+        <p style="font-size:20px;font-weight:700;margin-bottom:6px;">
+          ${form.nameKanji}（${form.nameReading}）様
+        </p>
+
+        <p style="font-size:12px;color:#666;">
+          ${form.year}年${form.month}月${form.day}日生　
+          ${form.gender}
+        </p>
+
+        <p style="font-size:11px;color:#888;margin-top:4px;">
+          鑑定日：${dateStr}
+        </p>
+      </div>
+    </div>
+
+    ${section("総合鑑定", initR)}
+
+  `,1, detailR ? 4 : 3));
+
+  /* ===== 2ページ目 ===== */
+
+  pages.push(page(`
+
+    <div style="text-align:center;margin-bottom:20px;">
+      <h1 style="font-size:22px;color:#1A1030;">
+        天命筆相による筆跡分析
+      </h1>
+    </div>
+
+    <div style="
+      display:flex;
+      gap:20px;
+      margin-bottom:24px;
+    ">
+      <div style="flex:1;text-align:center;">
+        <p style="font-size:12px;margin-bottom:8px;color:#7A5010;">
+          縦書き筆跡
+        </p>
+
+        ${
+          tateUrl
+            ? `<img src="${tateUrl}" style="max-width:100%;border:1px solid #ccc;border-radius:6px;">`
+            : ""
+        }
+      </div>
+
+      <div style="flex:1;text-align:center;">
+        <p style="font-size:12px;margin-bottom:8px;color:#7A5010;">
+          横書き筆跡
+        </p>
+
+        ${
+          yokoUrl
+            ? `<img src="${yokoUrl}" style="max-width:100%;border:1px solid #ccc;border-radius:6px;">`
+            : ""
+        }
+      </div>
+    </div>
+
+    ${
+      detailR?.categories?.map(cat => `
+        <div style="
+          margin-bottom:26px;
+          border:1px solid #E5D7B0;
+          border-radius:8px;
+          padding:16px;
+          background:#FCFAF5;
+        ">
+
+          <h2 style="
+            font-size:17px;
+            color:#7A5010;
+            margin-bottom:12px;
+          ">
+            ${cat.name}　▷　${cat.sub}
+          </h2>
+
+          <div style="
+            font-size:13px;
+            line-height:2;
+            white-space:pre-wrap;
+          ">
+            ${cat.reading || ""}
+          </div>
+
+          <div style="
+            margin-top:14px;
+            padding-top:12px;
+            border-top:1px dashed #D8C9A0;
+          ">
+            <p style="font-size:12px;margin-bottom:6px;">
+              <strong>アドバイス：</strong>
+              ${cat.advice || ""}
+            </p>
+
+            <p style="font-size:12px;margin-bottom:6px;">
+              <strong>重要な時期：</strong>
+              ${cat.timing || ""}
+            </p>
+
+            <p style="font-size:12px;">
+              <strong>ラッキーポイント：</strong>
+              ${cat.lucky || ""}
+            </p>
+          </div>
+
         </div>
+      `).join("") || ""
+    }
+
+  `,2, detailR ? 4 : 3));
+
+  /* ===== 3ページ目 ===== */
+
+  if(detailR){
+
+    pages.push(page(`
+
+      <div style="text-align:center;margin-bottom:24px;">
+        <h1 style="font-size:22px;color:#1A1030;">
+          詳細鑑定
+        </h1>
       </div>
-      <div style="border-top:1px solid #C9A84C;padding-top:18px;margin-top:20px;display:flex;justify-content:space-between;align-items:flex-end">
-        <div><p style="font-size:10px;color:#aaa;margin:0 0 2px">System developed by RingMoo（輪夢）</p><p style="font-size:9px;color:#ccc;margin:0">天命筆相は輪夢が開発した独自の筆跡鑑定手法です</p></div>
-        <div style="text-align:right"><p style="font-size:11px;color:#888;margin:0 0 4px">鑑定日：${dateStr}</p><p style="font-size:16px;font-weight:700;color:#1A1030;margin:0 0 2px">鑑定士　輪夢（りんむー）</p></div>
-      </div>
-      <div style="text-align:center;padding-top:12px;font-size:10px;color:#ccc">${total} / ${total}　天命筆相鑑定書</div>
-    </div>`;
+
+      ${
+        detailR.freeReading
+          ? section("お悩みへの鑑定回答", detailR.freeReading)
+          : ""
+      }
+
+      ${section("最終総合メッセージ", detailR.final)}
+
+    `,3,4));
   }
-  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>天命筆相鑑定書 - ${form.nameKanji}様</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Noto Serif JP',serif}
-@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{size:A4;margin:0}}</style>
-</head><body>${pages}</body></html>`;
-}
 
-function openPrintWindow(html){
-  const w=window.open("","_blank","width=900,height=700");
-  if(!w)return false;
-  w.document.open(); w.document.write(html); w.document.close();
-  w.onload=()=>{w.focus();w.print();};
-  setTimeout(()=>{try{w.focus();w.print();}catch(e){}},1400);
-  return true;
-}
+  /* ===== 最終ページ ===== */
 
+  pages.push(page(`
+
+    <div style="
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    ">
+      <div style="
+        border:2px solid #C9A84C;
+        border-radius:12px;
+        padding:40px;
+        max-width:520px;
+        text-align:center;
+        background:#F8F4EC;
+      ">
+
+        <p style="
+          font-size:12px;
+          letter-spacing:0.3em;
+          color:#7A5010;
+          margin-bottom:12px;
+        ">
+          — 命盤の余韻 —
+        </p>
+
+        <div style="
+          width:40px;
+          height:1px;
+          background:#C9A84C;
+          margin:0 auto 24px;
+        "></div>
+
+        <p style="
+          font-size:14px;
+          line-height:2.2;
+          color:#1A1030;
+        ">
+          ${detailR?.final || initR}
+        </p>
+
+      </div>
+    </div>
+
+    <div style="
+      margin-top:40px;
+      text-align:right;
+    ">
+      <p style="font-size:11px;color:#888;">
+        鑑定日：${dateStr}
+      </p>
+
+      <p style="
+        font-size:18px;
+        font-weight:700;
+        color:#1A1030;
+      ">
+        鑑定士　輪夢（りんむー）
+      </p>
+    </div>
+
+  `, detailR ? 4 : 3, detailR ? 4 : 3));
+
+  return `
+  <!DOCTYPE html>
+  <html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+      *{
+        box-sizing:border-box;
+      }
+
+      body{
+        margin:0;
+        background:#fff;
+      }
+
+      @media print{
+        @page{
+          size:A4;
+          margin:0;
+        }
+
+        *{
+          -webkit-print-color-adjust:exact !important;
+          print-color-adjust:exact !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    ${pages.join("")}
+  </body>
+  </html>
+  `;
+}
 /* ══ MAIN ══ */
 export default function TenmeiHissouApp(){
   const [step,setStep]=useState(1);
