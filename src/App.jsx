@@ -210,6 +210,14 @@ function Toast({msg,onClose}){
 }
 
 /* ── Print HTML builder ── */
+function cleanMarkdown(text=""){
+  return text
+    .replace(/^#+\s?/gm, "")
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "")
+    .replace(/---/g, "")
+    .trim();
+}
 function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
 
   const page = (content, num, total) => `
@@ -303,7 +311,7 @@ function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
       </div>
     </div>
 
-    ${section("総合鑑定", initR)}
+    ${section("総合鑑定", cleanMarkdown(initR))}
 
   `,1, detailR ? 4 : 3));
 
@@ -582,7 +590,7 @@ if(detailR){
             line-height:2.2;
             color:#1A1030;
           ">
-            ${detailR.freeReading}
+            ${cleanMarkdown(detailR.freeReading)}
           </div>
         </div>
         `
@@ -612,7 +620,7 @@ if(detailR){
         line-height:2.4;
         color:#1A1030;
       ">
-        ${detailR.final || ""}
+        ${cleanMarkdown(detailR.final || "")}
       </div>
     </div>
 
