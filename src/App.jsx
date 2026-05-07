@@ -402,26 +402,222 @@ function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
 
   /* ===== 3ページ目 ===== */
 
-  if(detailR){
+if(detailR){
 
-    pages.push(page(`
+  pages.push(page(`
 
-      <div style="text-align:center;margin-bottom:24px;">
-        <h1 style="font-size:22px;color:#1A1030;">
-          詳細鑑定
-        </h1>
+    <div style="text-align:center;margin-bottom:28px;">
+      <h1 style="
+        font-size:24px;
+        color:#1A1030;
+        margin-bottom:10px;
+        letter-spacing:0.08em;
+      ">
+        詳細鑑定
+      </h1>
+
+      <div style="
+        width:60px;
+        height:2px;
+        background:#C9A84C;
+        margin:0 auto;
+      "></div>
+    </div>
+
+    ${detailR?.categories?.map(c => `
+
+      <div style="
+        margin-bottom:24px;
+        border:1px solid #DCCB9A;
+        border-radius:12px;
+        overflow:hidden;
+        background:#FFFCF7;
+      ">
+
+        <div style="
+          background:#F6EFD9;
+          padding:14px 18px;
+          border-bottom:1px solid #E6D8B0;
+        ">
+          <div style="
+            font-size:17px;
+            font-weight:700;
+            color:#6A4A10;
+            margin-bottom:4px;
+          ">
+            ${c.name}
+          </div>
+
+          <div style="
+            font-size:12px;
+            color:#7A6A50;
+          ">
+            ${c.sub}
+          </div>
+        </div>
+
+        <div style="padding:18px;">
+
+          <div style="margin-bottom:18px;">
+            <div style="
+              font-size:11px;
+              font-weight:700;
+              color:#8A6A20;
+              margin-bottom:6px;
+              letter-spacing:0.08em;
+            ">
+              鑑定内容
+            </div>
+
+            <div style="
+              font-size:13px;
+              line-height:2.2;
+              color:#1A1030;
+            ">
+              ${c.reading || ""}
+            </div>
+          </div>
+
+          <div style="margin-bottom:18px;">
+            <div style="
+              font-size:11px;
+              font-weight:700;
+              color:#8A6A20;
+              margin-bottom:6px;
+              letter-spacing:0.08em;
+            ">
+              アドバイス
+            </div>
+
+            <div style="
+              font-size:12px;
+              line-height:2;
+              color:#444;
+            ">
+              ${c.advice || ""}
+            </div>
+          </div>
+
+          <div style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:14px;
+          ">
+
+            <div style="
+              background:#F8F4EA;
+              border-radius:8px;
+              padding:12px;
+            ">
+              <div style="
+                font-size:10px;
+                font-weight:700;
+                color:#8A6A20;
+                margin-bottom:5px;
+              ">
+                重要な時期
+              </div>
+
+              <div style="
+                font-size:11px;
+                line-height:1.9;
+                color:#555;
+              ">
+                ${c.timing || ""}
+              </div>
+            </div>
+
+            <div style="
+              background:#F8F4EA;
+              border-radius:8px;
+              padding:12px;
+            ">
+              <div style="
+                font-size:10px;
+                font-weight:700;
+                color:#8A6A20;
+                margin-bottom:5px;
+              ">
+                ラッキーポイント
+              </div>
+
+              <div style="
+                font-size:11px;
+                line-height:1.9;
+                color:#555;
+              ">
+                ${c.lucky || ""}
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
-      ${
-        detailR.freeReading
-          ? section("お悩みへの鑑定回答", detailR.freeReading)
-          : ""
-      }
+    `).join("")}
 
-      ${section("最終総合メッセージ", detailR.final)}
+    ${
+      detailR.freeReading
+        ? `
+        <div style="
+          margin-top:24px;
+          padding:20px;
+          border:1px solid #E4D4B4;
+          border-radius:12px;
+          background:#FFF9F0;
+        ">
+          <div style="
+            font-size:16px;
+            font-weight:700;
+            color:#7A5010;
+            margin-bottom:12px;
+          ">
+            お悩みへの鑑定回答
+          </div>
 
-    `,3,4));
-  }
+          <div style="
+            font-size:13px;
+            line-height:2.2;
+            color:#1A1030;
+          ">
+            ${detailR.freeReading}
+          </div>
+        </div>
+        `
+        : ""
+    }
+
+    <div style="
+      margin-top:28px;
+      padding:24px;
+      background:#F8F4EC;
+      border:1px solid #DCCB9A;
+      border-radius:12px;
+      text-align:center;
+    ">
+      <div style="
+        font-size:11px;
+        color:#8A6A20;
+        font-weight:700;
+        letter-spacing:0.2em;
+        margin-bottom:12px;
+      ">
+        最終総合メッセージ
+      </div>
+
+      <div style="
+        font-size:14px;
+        line-height:2.4;
+        color:#1A1030;
+      ">
+        ${detailR.final || ""}
+      </div>
+    </div>
+
+  `,3,4));
+}
 
   /* ===== 最終ページ ===== */
 
@@ -488,43 +684,61 @@ function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
 
   `, detailR ? 4 : 3, detailR ? 4 : 3));
 
-  return `
-  <!DOCTYPE html>
-  <html lang="ja">
-  <head>
-    <meta charset="UTF-8">
+return `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
 
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<title>
+天命筆相鑑定書
+</title>
 
-    <style>
-      *{
-        box-sizing:border-box;
-      }
+<link
+  href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&display=swap"
+  rel="stylesheet"
+>
 
-      body{
-        margin:0;
-        background:#fff;
-      }
+<style>
 
-      @media print{
-        @page{
-          size:A4;
-          margin:0;
-        }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-        *{
-          -webkit-print-color-adjust:exact !important;
-          print-color-adjust:exact !important;
-        }
-      }
-    </style>
-  </head>
+body{
+  font-family:'Noto Serif JP',serif;
+  background:#EEE;
+}
 
-  <body>
-    ${pages.join("")}
-  </body>
-  </html>
-  `;
+@media print{
+
+  *{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  @page{
+    size:A4;
+    margin:0;
+  }
+
+  body{
+    background:white;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+${pages.join("")}
+
+</body>
+</html>
+`;
 }
 /* ══ MAIN ══ */
 export default function TenmeiHissouApp(){
