@@ -588,7 +588,15 @@ const doInit = async () => {
 
     console.log("init raw:", raw);
 
-    setInitR(raw);
+const cleaned = raw
+  .replace(/#/g, "")
+  .replace(/\*/g, "")
+  .replace(/```json/g, "")
+  .replace(/```/g, "")
+  .trim();
+
+setInitR(cleaned);
+    
     setStep(3);
 
   } catch (e) {
