@@ -432,7 +432,7 @@ if(detailR){
       "></div>
     </div>
 
-    ${detailR?.categories?.map(c => `
+    ${(detailR?.categories || []).map(c => `
 
       <div style="
         margin-bottom:24px;
@@ -667,7 +667,7 @@ if(detailR){
           line-height:2.2;
           color:#1A1030;
         ">
-          ${detailR?.final || initR}
+          ${cleanMarkdown(detailR?.final || initR?.overall || "")}
         </p>
 
       </div>
@@ -747,6 +747,64 @@ ${pages.join("")}
 </body>
 </html>
 `;
+}
+/* =========================
+   印刷
+========================= */
+
+function printResult(){
+
+  const html = buildPrintHTML({
+    form,
+    initR,
+    detailR,
+    tateUrl,
+    yokoUrl,
+    dateStr
+  });
+
+  const w = window.open("", "_blank");
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+
+  w.onload = () => {
+    w.focus();
+    w.print();
+  };
+}
+
+/* =========================
+   PDF保存
+========================= */
+
+function savePDF(){
+
+  const html = buildPrintHTML({
+    form,
+    initR,
+    detailR,
+    tateUrl,
+    yokoUrl,
+    dateStr
+  });
+
+  const w = window.open("", "_blank");
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+
+  w.onload = () => {
+
+    w.focus();
+
+    setTimeout(() => {
+      w.print();
+    }, 500);
+
+  };
 }
 /* ══ MAIN ══ */
 export default function TenmeiHissouApp(){
