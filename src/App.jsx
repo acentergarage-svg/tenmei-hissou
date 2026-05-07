@@ -242,7 +242,7 @@ function buildPrintHTML({form,initR,detailR,tateUrl,yokoUrl,dateStr}){
       ${pf("筆跡全体の印象",initR.tenmeiHissou?.zentai)}${pf("縦書きから読む特徴と心理",initR.tenmeiHissou?.tategaki)}${pf("横書きから読む特徴と心理",initR.tenmeiHissou?.yokogaki)}${pf("現在の心理状態・内面の動き",initR.tenmeiHissou?.shinri)}${pf("潜在的才能・隠れた本質",initR.tenmeiHissou?.sensei)}
       <div style="background:#F8F4EC;border:1px solid #C9A84C;border-radius:8px;padding:20px;margin-top:14px;text-align:center">
         <p style="font-size:10px;color:#7A5010;font-weight:700;letter-spacing:.15em;margin:0 0 12px">三法統合 ─ 総合メッセージ</p>
-        <p style="font-size:13px;line-height:2;color:#1A1030;margin:0">${initR.overall}</p>
+        <p style="font-size:13px;line-height:2;color:#1A1030;margin:0">${initR}</p>
       </div>
       ${ft(2)}</div>`;
   }
@@ -252,9 +252,18 @@ if(detailR){
       詳細鑑定
     </h2>
 
-    <div style="font-size:13px;line-height:2;color:#1A1030;white-space:pre-wrap;">
-      ${detailR}
+<div style="font-size:13px;line-height:2.2;color:#1A1030;white-space:pre-wrap;letter-spacing:0.03em;">
+${detailR?.categories?.map(c => `
+  <div style="margin-bottom:18px;">
+    <div style="font-weight:700;color:#7A5010;margin-bottom:6px;">
+      ${c.name} ＞ ${c.sub}
     </div>
+    <div style="margin-bottom:6px;">${c.reading}</div>
+    <div style="font-size:11px;color:#555;">${c.advice}</div>
+    <div style="font-size:10px;color:#888;">${c.timing}</div>
+    <div style="font-size:10px;color:#888;">${c.lucky}</div>
+  </div>
+`).join("")}    </div>
 
     ${detailR?.freeReading ? `
       <div style="margin-top:16px;padding:14px;background:#F8F4EC;border-radius:6px">
